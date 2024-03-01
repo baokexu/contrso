@@ -21,7 +21,7 @@ import * as logger from "firebase-functions/logger";
 import { getFirestore } from "firebase-admin/firestore";
 import { initializeApp } from "firebase-admin/app";
 
-import { Worker } from '../../src/types/restaurant';
+import { Restaurant } from '../../src/types/restaurant';
 import { Rating } from '../../src/types/ratings';
 import { strict as assert } from 'assert';
 
@@ -37,7 +37,7 @@ export const updateNumRatings = onDocumentWritten(
         logger.info(`Fetching data for restaurant ` +
             `${event.params.restaurtantID}`);
         const restaurantDocFromFirebase = await restuarantDocRef.get();
-        const restaurantData = restaurantDocFromFirebase.data() as Worker;
+        const restaurantData = restaurantDocFromFirebase.data() as Restaurant;
         const fetchedRatingDocs = (await db.collection(
             `restaurants/${event.params.restaurtantID}/ratings`).get()).docs
         const actualRatings: Rating[] = fetchedRatingDocs.map(
@@ -59,7 +59,7 @@ export const updateNumRatings = onDocumentWritten(
             (currentSum, currentRating) => currentSum + currentRating.rating,
             0);
         const newAvgRating = Math.round(sumOfRatings / actualRatings.length);
-        const newRestaurant: Worker = {
+        const newRestaurant: Restaurant = {
             ...restaurantData,
             avgRating: newAvgRating,
             numRatings: actualRatings.length
